@@ -23,6 +23,14 @@ const kittySchema = new mongoose.Schema({
   breed: String,
 });
 
+kittySchema.path('name').validate((v) => {
+  return v.length > 5;
+}, 'my error type');
+
+kittySchema.path('breed').validate((v) => {
+  return v.length > 5;
+}, 'my error type');
+
 kittySchema.methods.speak = function () {
   const greeting = this.name
     ? 'Meow name is ' + this.name
@@ -48,15 +56,23 @@ app.post('/', (req, res) => {
   const newKitten = new Kitten({ name: req.body.name, breed: req.body.breed });
 
   newKitten.save(function (err, kitten) {
-    if (err) return console.error(err);
-    kitten.speak();
+    if (err) {
+      console.error(err);
+      return res.send(400);
+    } else {
+      Kitten.find((err, kittens) => {
+        if (err) return console.error(err);
+        res.json(kittens);
+        res.status(200);
+      });
+    }
   });
 
-  Kitten.find(function (err, kittens) {
-    if (err) return console.error(err);
-    res.json(kittens);
-    res.status(200);
-  });
+  // Kitten.find(function (err, kittens) {
+  //   if (err) return console.error(err);
+  //   res.json(kittens);
+  //   res.status(200);
+  // });
 });
 
 app.delete('/:userId', (req, res) => {
