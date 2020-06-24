@@ -9,6 +9,7 @@ const port = 5000;
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true });
+mongoose.set('useFindAndModify', false);
 
 const db = mongoose.connection;
 
@@ -19,6 +20,7 @@ db.once('open', function () {
 
 const kittySchema = new mongoose.Schema({
   name: String,
+  breed: String,
 });
 
 kittySchema.methods.speak = function () {
@@ -29,20 +31,6 @@ kittySchema.methods.speak = function () {
 };
 
 const Kitten = mongoose.model('Kitten', kittySchema);
-
-// const silence = new Kitten({ name: 'Silence' });
-// console.log(silence.name); // 'Silence'
-
-// const fluffy = new Kitten({ name: 'fluffy' });
-// //fluffy.speak();
-// silence.save(function (err, fluffy) {
-//   if (err) return console.error(err);
-//   silence.speak();
-// });
-
-// fluffy.save(function (err, fluffy) {
-//   if (err) return console.error(err);
-//   fluffy.speak();
 
 app.all('/', (req, res, next) => {
   console.log('¡Hello World!');
@@ -57,7 +45,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-  const newKitten = new Kitten({ name: req.body.name });
+  const newKitten = new Kitten({ name: req.body.name, breed: req.body.breed });
 
   newKitten.save(function (err, kitten) {
     if (err) return console.error(err);
@@ -72,7 +60,6 @@ app.post('/', (req, res) => {
 });
 
 app.delete('/:userId', (req, res) => {
-  const id = req.params.userId;
   Kitten.findOneAndRemove({ _id: req.params.userId }, (err, kitten) => {
     if (err) return console.error(err);
     res.status(200);
@@ -85,12 +72,10 @@ app.delete('/:userId', (req, res) => {
 });
 
 app.put('/edit/:userId', (req, res) => {
-  console.log(req.params.userId);
-
   Kitten.findOneAndUpdate(
     { _id: req.params.userId },
-    { name: req.body.name },
-    function (err, kittens) {
+    { name: req.body.name, breed: req.body.breed },
+    function (err) {
       if (err) return console.error(err);
       res.status(200);
     }
@@ -102,37 +87,26 @@ app.put('/edit/:userId', (req, res) => {
   });
 });
 
-// const id = parseInt(req.params.userId);
+app.get('/search/:search', (req, res) => {
+  const found = [];
+  console.log('found 1:', found);
 
-// users.find((user) => {
-//   if (id === user.id) {
-//     user.name = editUser.name;
-//     user.phone = editUser.phone;
-//     user.email = editUser.email;
-//     user.address = editUser.address;
+  Kitten.find({ _id: req.params.search }, (err, kitten) => {
+    if (err) return console.error(err);
+    found.push(...kitten);
+  });
 
-//     return res.json(users);
-//   }
+  Kitten.find({ name: req.params.search }, (err, kitten) => {
+    if (err) return console.error(err);
 
-//   return '';
-// });
+    kitten.forEach((k) => found.push(k));
 
-// app.get('/search/:search', (req, res) => {
-//   const searchUser = req.params.search;
-
-//   const found = users.filter((user) => {
-//     if (
-//       user.name.match(searchUser.toLowerCase()) ||
-//       user.email.match(searchUser) ||
-//       user.address.match(searchUser) ||
-//       user.phone.match(searchUser)
-//     ) {
-//       return user;
-//     }
-//     return '';
-//   });
-//   res.json(found.length ? found : users);
-// });
+    console.log('found 2: ' + found);
+  });
+  res.status(200);
+  //found.length && res.json(found);
+  console.log(found);
+});
 
 // app.get('/search/', (req, res) => {
 //   res.json(users);
