@@ -70,18 +70,36 @@ app.post('/', (req, res) => {
     if (err) return console.error(err);
     console.log('kittens:', kittens);
     res.json(kittens);
+    res.status(200);
   });
-
-  res.status(200);
 });
 
-// app.delete('/:userId', (req, res) => {
-//   const id = parseInt(req.params.userId);
+app.delete('/:userId', (req, res) => {
+  const id = req.params.userId;
+  console.log(id);
+  Kitten.findOneAndRemove({ _id: req.params.userId }, (err, kitten) => {
+    if (err) return console.error(err);
+    res.status(200);
 
-//   users.filter((user, i) => user.id === id && users.splice(i, 1));
+    Kitten.find(function (err, kittens) {
+      if (err) return console.error(err);
+      console.log('kittens:', kittens);
+      res.json(kittens);
+    });
+  });
+});
 
-//   res.json(users);
-// });
+// app.delete('/book/:id', (req, res) =>
+//  Book.findOneAndRemove({
+//   _id: req.params.id
+//  }, (err, book) => {
+//   if(err) {
+//    res.send('error removing')
+//   } else {
+//    console.log(book);
+//    res.status(204);
+//  }
+// }));
 
 // app.put('/:userId/edit', (req, res) => {
 //   const editUser = req.body;
