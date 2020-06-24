@@ -52,13 +52,11 @@ app.all('/', (req, res, next) => {
 app.get('/', (req, res) => {
   Kitten.find(function (err, kittens) {
     if (err) return console.error(err);
-    console.log('kittens:', kittens);
     res.json(kittens);
   });
 });
 
 app.post('/', (req, res) => {
-  console.log(req.body);
   const newKitten = new Kitten({ name: req.body.name });
 
   newKitten.save(function (err, kitten) {
@@ -68,7 +66,6 @@ app.post('/', (req, res) => {
 
   Kitten.find(function (err, kittens) {
     if (err) return console.error(err);
-    console.log('kittens:', kittens);
     res.json(kittens);
     res.status(200);
   });
@@ -76,47 +73,48 @@ app.post('/', (req, res) => {
 
 app.delete('/:userId', (req, res) => {
   const id = req.params.userId;
-  console.log(id);
   Kitten.findOneAndRemove({ _id: req.params.userId }, (err, kitten) => {
     if (err) return console.error(err);
     res.status(200);
 
     Kitten.find(function (err, kittens) {
       if (err) return console.error(err);
-      console.log('kittens:', kittens);
       res.json(kittens);
     });
   });
 });
 
-// app.delete('/book/:id', (req, res) =>
-//  Book.findOneAndRemove({
-//   _id: req.params.id
-//  }, (err, book) => {
-//   if(err) {
-//    res.send('error removing')
-//   } else {
-//    console.log(book);
-//    res.status(204);
-//  }
-// }));
+app.put('/edit/:userId', (req, res) => {
+  console.log(req.params.userId);
 
-// app.put('/:userId/edit', (req, res) => {
-//   const editUser = req.body;
-//   const id = parseInt(req.params.userId);
+  Kitten.findOneAndUpdate(
+    { _id: req.params.userId },
+    { name: req.body.name },
+    function (err, kittens) {
+      if (err) return console.error(err);
+      res.status(200);
+    }
+  );
 
-//   users.find((user) => {
-//     if (id === user.id) {
-//       user.name = editUser.name;
-//       user.phone = editUser.phone;
-//       user.email = editUser.email;
-//       user.address = editUser.address;
+  Kitten.find(function (err, kittens) {
+    if (err) return console.error(err);
+    res.json(kittens);
+  });
+});
 
-//       return res.json(users);
-//     }
+// const id = parseInt(req.params.userId);
 
-//     return '';
-//   });
+// users.find((user) => {
+//   if (id === user.id) {
+//     user.name = editUser.name;
+//     user.phone = editUser.phone;
+//     user.email = editUser.email;
+//     user.address = editUser.address;
+
+//     return res.json(users);
+//   }
+
+//   return '';
 // });
 
 // app.get('/search/:search', (req, res) => {
