@@ -149,6 +149,24 @@ app.put('/:kittenId/color', (req, res) => {
   });
 });
 
+app.delete('/:kittenId/color', (req, res) => {
+  Kitten.update(
+    { _id: req.params.kittenId },
+    { $pull: { colors: req.body.color } },
+    function (error, success) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(success);
+      }
+    }
+  );
+  Kitten.find(function (err, kittens) {
+    if (err) return console.error(err);
+    res.json(kittens);
+  });
+});
+
 app.listen(port, function () {
   console.log(`Example app listening on port ${port}!`);
 });
