@@ -83,21 +83,26 @@ app.post('/', (req, res) => {
 });
 
 app.delete('/:kittenId', (req, res) => {
-  Kitten.findOneAndRemove({ _id: req.params.kittenId }, (err, kitten) => {
-    if (err) return console.error(err);
-    res.status(200);
-
-    Kitten.find(function (err, kittens) {
+  Kitten.findOneAndRemove(
+    { _id: req.params.kittenId },
+    { new: true },
+    (err, kitten) => {
       if (err) return console.error(err);
-      res.json(kittens);
-    });
-  });
+      res.status(200);
+
+      Kitten.find(function (err, kittens) {
+        if (err) return console.error(err);
+        res.json(kittens);
+      });
+    }
+  );
 });
 
 app.put('/edit/:kittenId', (req, res) => {
   Kitten.findOneAndUpdate(
     { _id: req.params.kittenId },
     { name: req.body.name, breed: req.body.breed, colors: req.body.colors },
+    { new: true },
     function (err) {
       if (err) return console.error(err);
       res.status(200);
@@ -119,7 +124,7 @@ app.get('/search/:search', (req, res) => {
     found.push(...kitten);
   });
 
-  Kitten.find({ name: req.params.search }, (err, kitten) => {
+  Kitten.find({ name: req.params.search }, { new: true }, (err, kitten) => {
     if (err) return console.error(err);
 
     kitten.forEach((k) => found.push(k));
@@ -135,6 +140,7 @@ app.put('/:kittenId/color', (req, res) => {
   Kitten.update(
     { _id: req.params.kittenId },
     { $push: { colors: req.body.color } },
+    { new: true },
     function (error, success) {
       if (error) {
         console.log(error);
@@ -153,6 +159,7 @@ app.delete('/:kittenId/color', (req, res) => {
   Kitten.update(
     { _id: req.params.kittenId },
     { $pull: { colors: req.body.color } },
+    { new: true },
     function (error, success) {
       if (error) {
         console.log(error);
