@@ -21,6 +21,7 @@ db.once('open', function () {
 const kittySchema = new mongoose.Schema({
   name: String,
   breed: String,
+  colors: [String],
 });
 
 kittySchema.path('name').validate((v) => {
@@ -53,26 +54,32 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
-  const newKitten = new Kitten({ name: req.body.name, breed: req.body.breed });
+  const newKitten = new Kitten({
+    name: req.body.name,
+    breed: req.body.breed,
+    colors: req.body.colors,
+  });
 
   newKitten.save(function (err, kitten) {
     if (err) {
       console.error(err);
-      return res.send(400);
+      for (let key in err.errors) {
+        let error = err.errors[key];
+        console.log(error);
+      }
+      res.status(400).json(err);
+      return;
     } else {
       Kitten.find((err, kittens) => {
-        if (err) return console.error(err);
-        res.json(kittens);
+        if (err) {
+          res.status(400);
+          return;
+        }
         res.status(200);
+        res.json(kittens);
       });
     }
   });
-
-  // Kitten.find(function (err, kittens) {
-  //   if (err) return console.error(err);
-  //   res.json(kittens);
-  //   res.status(200);
-  // });
 });
 
 app.delete('/:userId', (req, res) => {
