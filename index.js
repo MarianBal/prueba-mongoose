@@ -82,8 +82,8 @@ app.post('/', (req, res) => {
   });
 });
 
-app.delete('/:userId', (req, res) => {
-  Kitten.findOneAndRemove({ _id: req.params.userId }, (err, kitten) => {
+app.delete('/:kittenId', (req, res) => {
+  Kitten.findOneAndRemove({ _id: req.params.kittenId }, (err, kitten) => {
     if (err) return console.error(err);
     res.status(200);
 
@@ -94,10 +94,10 @@ app.delete('/:userId', (req, res) => {
   });
 });
 
-app.put('/edit/:userId', (req, res) => {
+app.put('/edit/:kittenId', (req, res) => {
   Kitten.findOneAndUpdate(
-    { _id: req.params.userId },
-    { name: req.body.name, breed: req.body.breed },
+    { _id: req.params.kittenId },
+    { name: req.body.name, breed: req.body.breed, colors: req.body.colors },
     function (err) {
       if (err) return console.error(err);
       res.status(200);
@@ -131,30 +131,23 @@ app.get('/search/:search', (req, res) => {
   console.log(found);
 });
 
-// app.get('/search/', (req, res) => {
-//   res.json(users);
-// });
-
-// app
-//   .route('/users/')
-//   .all(function (req, res, next) {
-//     console.log('¡Hello World! from Router');
-//     next();
-//   })
-//   .get((req, res) => {
-//     res.json(users);
-//   })
-
-//   .post((req, res) => {
-//     const newUser = req.body;
-
-//     newUser.id = nextId(users);
-//     users.push(newUser);
-//     res.json(users);
-//   })
-//   .delete(function (req, res, next) {
-//     next(new Error('not implemented'));
-//   });
+app.put('/:kittenId/color', (req, res) => {
+  Kitten.update(
+    { _id: req.params.kittenId },
+    { $push: { colors: req.body.color } },
+    function (error, success) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(success);
+      }
+    }
+  );
+  Kitten.find(function (err, kittens) {
+    if (err) return console.error(err);
+    res.json(kittens);
+  });
+});
 
 app.listen(port, function () {
   console.log(`Example app listening on port ${port}!`);
