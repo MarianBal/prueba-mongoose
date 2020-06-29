@@ -19,18 +19,20 @@ db.once('open', function () {
 });
 
 const kittySchema = new mongoose.Schema({
-  name: String,
-  breed: String,
+  name: {
+    type: String,
+    required: 'is required',
+    minlength: [3, 'is too short'],
+    maxlength: [10, 'is too long'],
+  },
+  breed: {
+    type: String,
+    required: 'is required',
+    minlength: [3, 'is too short'],
+    maxlength: [10, 'is too long'],
+  },
   colors: [String],
 });
-
-kittySchema.path('name').validate((v) => {
-  return v.length > 5;
-}, 'my error type');
-
-kittySchema.path('breed').validate((v) => {
-  return v.length > 5;
-}, 'my error type');
 
 kittySchema.methods.speak = function () {
   const greeting = this.name
@@ -41,58 +43,22 @@ kittySchema.methods.speak = function () {
 
 const Kitten = mongoose.model('Kitten', kittySchema);
 
-// app.put('/edit/:kittenId', (req, res) => {
-//   Kitten.findOneAndUpdate(
-//     { _id: req.params.kittenId },
-//     { name: req.body.name, breed: req.body.breed, colors: req.body.colors },
-//     { new: true },
-//     function (err) {
-//       if (err) return console.error(err);
-//       res.status(200);
-//     }
-//   );
+app.put('/edit/:kittenId', (req, res) => {
+  Kitten.findOneAndUpdate(
+    { _id: req.params.kittenId },
+    { name: req.body.name, breed: req.body.breed, colors: req.body.colors },
+    { new: true },
+    function (err) {
+      if (err) return console.error(err);
+      res.status(200);
+    }
+  );
 
-//   Kitten.find(function (err, kittens) {
-//     if (err) return console.error(err);
-//     res.json(kittens);
-//   });
-// });
-
-// app.put('/:kittenId/color', (req, res) => {
-//   Kitten.update(
-//     { _id: req.params.kittenId },
-//     { $push: { colors: req.body.color } },
-//     { new: true },
-//     function (error, success) {
-//       if (error) {
-//         console.log(error);
-//       } else {
-//         console.log(success);
-//       }
-//     }
-//   );
-//   Kitten.find(function (err, kittens) {
-//     if (err) return console.error(err);
-//     res.json(kittens);
-//   });
-// });
-
-// app.delete('/:kittenId/color', (req, res) => {
-//   Kitten.update(
-//     { _id: req.params.kittenId },
-//     { $pull: { colors: req.body.color } },
-//     { new: true },
-//     function (err, success) {
-//       if (err) return console.error(err);
-//       res.status(200);
-//       Kitten.find(function (err, kittens) {
-//         if (err) return console.error(err);
-//         res.json(kittens);
-//       });
-//       return;
-//     }
-//   );
-// });
+  Kitten.find(function (err, kittens) {
+    if (err) return console.error(err);
+    res.json(kittens);
+  });
+});
 
 app
   .route('/')
@@ -102,7 +68,7 @@ app
   })
 
   .get((req, res) => {
-    Kitten.find(function (err, kittens) {
+    Kitten.find((err, kittens) => {
       if (err) return console.error(err);
       res.json(kittens);
     });
@@ -116,12 +82,11 @@ app
 
     newKitten.save(function (err, kitten) {
       if (err) {
-        console.error(err);
         for (let key in err.errors) {
           let error = err.errors[key];
           console.log(error);
         }
-        res.status(400).json(err);
+        res.status(400).json(err.message);
         return;
       } else {
         Kitten.find((err, kittens) => {
