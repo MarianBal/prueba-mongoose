@@ -5,7 +5,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('assets'));
 
-const port = 6000;
+const port = 3000;
 
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
@@ -19,7 +19,7 @@ db.once('open', () => {
   console.log("we're connected!");
 });
 
-app.use(require('./routes/users'));
+app.use('/users', require('./routes/users'));
 
 // const kittySchema = new mongoose.Schema({
 //   name: {
@@ -64,65 +64,6 @@ app.use(require('./routes/users'));
 //     if (err) return console.error(err);
 //     res.json(kittens);
 //   });
-// });
-
-// app
-//   .route('/')
-//   .all((req, res, next) => {
-//     console.log('¡Hello World!');
-//     next();
-//   })
-
-//   .get((req, res) => {
-//     Kitten.find((err, kittens) => {
-//       if (err) return console.error(err);
-//       res.json(kittens);
-//     });
-//   })
-//   .post((req, res) => {
-//     const newKitten = new Kitten({
-//       name: req.body.name,
-//       breed: req.body.breed,
-//       colors: req.body.colors,
-//     });
-
-//     newKitten.meow();
-
-//     newKitten.save(function (err, kitten) {
-//       if (err) {
-//         for (let key in err.errors) {
-//           let error = err.errors[key];
-//           console.log(error);
-//         }
-//         res.status(400).json(err.message);
-//         return;
-//       } else {
-//         Kitten.find((err, kittens) => {
-//           if (err) {
-//             res.status(400);
-//             return;
-//           }
-//           res.status(200);
-//           res.json(kittens);
-//         });
-//       }
-//     });
-//   });
-
-// app.route('/:kittenId').delete((req, res) => {
-//   Kitten.findOneAndRemove(
-//     { _id: req.params.kittenId },
-//     { new: true },
-//     (err, kitten) => {
-//       if (err) return console.error(err);
-//       res.status(200);
-
-//       Kitten.find(function (err, kittens) {
-//         if (err) return console.error(err);
-//         res.json(kittens);
-//       });
-//     }
-//   );
 // });
 
 // app.route('/edit/:kittenId').put((req, res) => {

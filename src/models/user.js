@@ -3,10 +3,20 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  firstName: String,
-  lastName: String,
+  firstName: {
+    type: String,
+    required: 'is required',
+    minlength: [3, 'is too short'],
+    maxlength: [20, 'is too long'],
+  },
+  lastName: {
+    type: String,
+    required: 'is required',
+    minlength: [3, 'is too short'],
+    maxlength: [20, 'is too long'],
+  },
   email: String,
-  // cars: [{ type: this.schema.type.ObjectId, ref: 'car' }],
+  skills: [{ type: String }],
 });
 
 module.exports = mongoose.model('user', userSchema);
