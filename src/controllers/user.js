@@ -1,7 +1,8 @@
 const User = require('../models/user');
+const { findOne, find } = require('../models/user');
 
 module.exports = {
-  index: async (req, res, next) => {
+  index: async (req, res) => {
     try {
       const users = await User.find({});
       res.status(200).json(users);
@@ -27,21 +28,60 @@ module.exports = {
     }
   },
   editUser: async (req, res) => {
+    const { body } = req;
+
     try {
-      await UserfindOneAndUpdate(
+      const foundUser = await User.findById(req.params.userId);
+
+      const update = {};
+      for (let field in body) {
+        if (body[field] !== foundUser[field]) update[field] = body[field];
+      }
+      const prueba = await User.updateOne({ _id: req.params.userId }, update, {
+        new: true,
+      });
+
+      res.status(200).json(prueba);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+  addSkill: async (req, res) => {
+    try {
+      const skilledUser = await User.updateOne(
         { _id: req.params.userId },
-        {
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          skills: req.body.skills,
-        },
-        {
-          new: true,
-        }
+        { $addToSet: { skills: { $each: req.body.skills } } },
+        { new: true }
       );
-      throw error('error');
-      //res.status(200).json(user);
+      res.status(200).json(skilledUser);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+  deleteSkill: async (req, res) => {
+    try {
+      const noSkilledUser = await User.updateOne(
+        { _id: req.params.userId },
+        { $pullAll: { skills: req.body.skills } },
+        { new: true }
+      );
+      res.status(200).json(noSkilledUser);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+  findById: async (req, res) => {
+    try {
+      const user = await User.findById(req.params.userId);
+      res.status(200).json(user);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+  },
+  findUser: async (req, res) => {
+    try {
+      const user = await User.find(req.body);
+      res.status(200).json(user);
     } catch (error) {
       res.status(400).json(error);
     }
